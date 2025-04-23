@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radi Smart Health – Em Construção</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0d698f;
+      --secondary: #0f2d40;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background: linear-gradient(120deg, var(--secondary), var(--primary));
+      background-size: 200% 200%;
+      animation: bgShift 15s ease-in-out infinite;
+      /* Esconde o cursor padrão */
+      cursor: none;
+    }
+    @keyframes bgShift {
+      0%   { background-position: 0 0; }
+      50%  { background-position: 100% 100%; }
+      100% { background-position: 0 0; }
+    }
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.2);
+      backdrop-filter: blur(2px);
+      pointer-events: none; /* Garante que não interfere com o rato */
+    }
+    .container {
+      position: relative;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      text-align: center;
+      z-index: 2;
+      pointer-events: none; /* Garante que não interfere com o rato */
+    }
+    .logo {
+      width: 300px;
+      height: auto;
+      opacity: 0;
+      animation: fadeIn 2s forwards;
+    }
+    @keyframes fadeIn { to { opacity: 1; } }
+    .message {
+      margin-top: 2rem;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      min-height: 2rem; /* Ajustado para evitar saltos */
+    }
+    /* Removido o cursor piscante original para não conflitar */
+    /* .cursor { ... } */
+    /* @keyframes blink { ... } */
+
+    .progress {
+      width: 250px;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.2);
+      overflow: hidden;
+      margin-top: 3rem;
+    }
+    .progress::before {
+      content: '';
+      display: block;
+      width: 40%;
+      height: 100%;
+      background: #fff;
+      animation: load 2.5s linear infinite;
+    }
+    @keyframes load {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(250%); }
+    }
+    /* Partículas */
+    canvas#dots { /* ID específico para evitar conflito se houver outros canvas */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1; /* Atrás do conteúdo, mas visível */
+    }
+
+    /* --- Efeito Rasto e Cursor Personalizado --- */
+    .trail {
+      position: fixed;
+      width: 8px; /* Tamanho dos pontos do rasto */
+      height: 8px;
+      background-color: rgba(255, 255, 255, 0.6); /* Cor do rasto */
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 10000; /* Por cima de tudo */
+      transform: translate(-50%, -50%); /* Centralizar no ponteiro */
+      animation: fadeOutTrail 0.5s linear forwards;
+    }
+
+    @keyframes fadeOutTrail {
+      to {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5); /* Encolhe ao desaparecer */
+      }
+    }
+
+    #custom-cursor-logo {
+      position: fixed;
+      width: 40px; /* Tamanho do seu logo como cursor */
+      height: 40px;
+      /* --- SUBSTITUA PELA URL DO SEU LOGO --- */
+      background-image: url('URL_DO_SEU_LOGO_AQUI.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      pointer-events: none;
+      z-index: 10001; /* Por cima do rasto */
+      transform: translate(-50%, -50%); /* Centralizar no ponteiro */
+      opacity: 0; /* Começa invisível */
+      transition: opacity 0.2s ease-in-out; /* Suavizar aparição/desaparição */
+    }
+    /* --- Fim Efeito Rasto e Cursor Personalizado --- */
+
+  </style>
+</head>
+<body>
+  <canvas id="dots"></canvas>
+  <div id="overlay"></div>
+  <div class="container">
+    <!-- Substitua "logo.png" pelo nome do ficheiro do vosso logótipo principal da página -->
+    <img src="logo.png" alt="Radi Smart Health Logo" class="logo" />
+    <div class="message" id="msg"></div>
+    <div class="progress"></div>
+  </div>
+
+  <!-- Elemento para o cursor personalizado com o logo -->
+  <div id="custom-cursor-logo"></div>
+
+  <script>
+    /* Efeito máquina de escrever (código existente) */
+    const textos = [
+        'Estamos a preparar algo extraordinário…',    // PT 1
+        'We are preparing something extraordinary…', // EN 1
+        'Conectando dados de saúde ao futuro…',    // PT 2
+        'Connecting health data to the future…',   // EN 2
+        'Volte em breve!',                          // PT 3
+        'Come back soon!'  
+    ];
+    let idx = 0, char = 0;
+    const elemento = document.getElementById('msg');
+    let typeTimeout; // Para poder limpar o timeout se necessário
+
+    function escrever() {
+      clearTimeout(typeTimeout); // Limpa timeout anterior
+      if (char < textos[idx].length) {
+        elemento.textContent += textos[idx].charAt(char);
+        char++;
+        typeTimeout = setTimeout(escrever, 80);
+      } else {
+        typeTimeout = setTimeout(() => {
+          elemento.textContent = '';
+          char = 0;
+          idx = (idx + 1) % textos.length;
+          escrever();
+        }, 2500);
+      }
+    }
+    // Adiciona um pequeno atraso inicial para não começar imediatamente
+    setTimeout(escrever, 500);
+
+    /* Partículas em rede (código existente) */
+    const canvas = document.getElementById('dots');
+    const ctx = canvas.getContext('2d');
+    let w, h, particulas;
+    let animationFrameId; // Para poder cancelar a animação se necessário
+
+    function redimensionar() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', redimensionar);
+    redimensionar();
+
+    function iniciarParticulas() { // Renomeado para clareza
+      particulas = [];
+      const n = Math.floor(w * h / 9000); // Densidade ajustável
+      for (let i = 0; i < n; i++) {
+        particulas.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.6,
+          vy: (Math.random() - 0.5) * 0.6
+        });
+      }
+    }
+    iniciarParticulas();
+
+    function desenharParticulas() { // Renomeado para clareza
+      ctx.clearRect(0, 0, w, h);
+      if (!particulas) return; // Segurança
+
+      for (const p of particulas) {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Bounce off edges
+        if (p.x < 0 || p.x > w) p.vx *= -1;
+        if (p.y < 0 || p.y > h) p.vy *= -1;
+
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Draw lines between nearby particles
+      for (let i = 0; i < particulas.length; i++) {
+        for (let j = i + 1; j < particulas.length; j++) {
+          const a = particulas[i];
+          const b = particulas[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 120) { // Distância máxima para ligação
+            ctx.strokeStyle = 'rgba(255,255,255,' + (1 - dist / 120) + ')';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
+      animationFrameId = requestAnimationFrame(desenharParticulas);
+    }
+    desenharParticulas(); // Inicia a animação das partículas
+
+
+    /* --- Efeito Rasto e Cursor Personalizado --- */
+    const customCursorLogo = document.getElementById('custom-cursor-logo');
+    let mouseX = 0, mouseY = 0;
+    let idleTimer;
+    const idleTimeout = 150; // Tempo em ms para considerar o rato parado
+
+    // Atualiza a posição do rato
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+
+      // Mostra rasto e esconde logo
+      createTrail(mouseX, mouseY);
+      customCursorLogo.style.opacity = '0'; // Esconde o logo
+
+      // Reinicia o timer de inatividade
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(showLogoCursor, idleTimeout);
+    });
+
+    // Função para criar um ponto do rasto
+    function createTrail(x, y) {
+      const trailDot = document.createElement('div');
+      trailDot.className = 'trail'; // Aplica o estilo CSS
+      trailDot.style.left = `${x}px`;
+      trailDot.style.top = `${y}px`;
+
+      document.body.appendChild(trailDot);
+
+      // Remove o ponto do DOM após a animação terminar (0.5s)
+      setTimeout(() => {
+        trailDot.remove();
+      }, 500); // Deve coincidir com a duração da animação fadeOutTrail
+    }
+
+    // Função para mostrar o logo quando o rato para
+    function showLogoCursor() {
+        if (customCursorLogo) { // Verifica se o elemento existe
+            customCursorLogo.style.left = `${mouseX}px`;
+            customCursorLogo.style.top = `${mouseY}px`;
+            customCursorLogo.style.opacity = '1'; // Mostra o logo
+        }
+    }
+
+    // Opcional: Esconder o cursor personalizado se o rato sair da janela
+    document.addEventListener('mouseleave', () => {
+        if (customCursorLogo) {
+            customCursorLogo.style.opacity = '0';
+        }
+        clearTimeout(idleTimer); // Limpa o timer também
+    });
+
+     // Opcional: Mostrar o cursor logo imediatamente se o rato entrar na janela (sem mover)
+     document.addEventListener('mouseenter', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        // Se não houver timer ativo (ou seja, não está vindo de um mousemove recente)
+        if (!idleTimer) {
+            showLogoCursor();
+        }
+    });
+
+    // Garante que o cursor logo é posicionado na carga inicial (opcional, pode não ser necessário)
+    // showLogoCursor(); // Pode causar um flash inicial, talvez remover
+
+    /* --- Fim Efeito Rasto e Cursor Personalizado --- */
+
+  </script>
+</body>
+</html>
+
+
+Como usar:
+
+Copie e cole todo este código num ficheiro .html.
+
+Substitua "logo.png" na tag <img> pelo caminho do seu logótipo principal que aparece no centro da página.
+
+Substitua 'URL_DO_SEU_LOGO_AQUI.png' no CSS (#custom-cursor-logo { background-image: ... }) pelo caminho do ficheiro de imagem que você quer usar como cursor quando o rato estiver parado. Use uma imagem pequena (ex: 40x40 ou 64x64 pixels) para melhor desempenho e visual.
+
+Ajuste os valores no CSS se necessário:
+
+.trail { width: 8px; height: 8px; background-color: ... }: Tamanho e cor dos pontos do rasto.
+
+@keyframes fadeOutTrail { ... animation: fadeOutTrail 0.5s ... }: Duração do desaparecimento do rasto (o setTimeout no JavaScript deve corresponder a esta duração).
+
+#custom-cursor-logo { width: 40px; height: 40px; }: Tamanho do logo-cursor.
+
+const idleTimeout = 150; no JavaScript: Tempo em milissegundos de inatividade para o logo aparecer. Pode aumentar ou diminuir este valor.
+
+Agora, ao abrir a página HTML no navegador, você deverá ver o efeito: um rasto de pontos brancos segue o rato, e quando você para de mover, o rasto desaparece e o seu logo aparece no lugar do cursor.
