@@ -323,24 +323,3 @@
   </script>
 </body>
 </html>
-
-
-Como usar:
-
-Copie e cole todo este código num ficheiro .html.
-
-Substitua "logo.png" na tag <img> pelo caminho do seu logótipo principal que aparece no centro da página.
-
-Substitua 'URL_DO_SEU_LOGO_AQUI.png' no CSS (#custom-cursor-logo { background-image: ... }) pelo caminho do ficheiro de imagem que você quer usar como cursor quando o rato estiver parado. Use uma imagem pequena (ex: 40x40 ou 64x64 pixels) para melhor desempenho e visual.
-
-Ajuste os valores no CSS se necessário:
-
-.trail { width: 8px; height: 8px; background-color: ... }: Tamanho e cor dos pontos do rasto.
-
-@keyframes fadeOutTrail { ... animation: fadeOutTrail 0.5s ... }: Duração do desaparecimento do rasto (o setTimeout no JavaScript deve corresponder a esta duração).
-
-#custom-cursor-logo { width: 40px; height: 40px; }: Tamanho do logo-cursor.
-
-const idleTimeout = 150; no JavaScript: Tempo em milissegundos de inatividade para o logo aparecer. Pode aumentar ou diminuir este valor.
-
-Agora, ao abrir a página HTML no navegador, você deverá ver o efeito: um rasto de pontos brancos segue o rato, e quando você para de mover, o rasto desaparece e o seu logo aparece no lugar do cursor.
